@@ -4,7 +4,7 @@
 import sys
 import json
 import pyspark
-from pyspark.sql.functions import col, collect_list, array_join
+from pyspark.sql.functions import col, collect_list, array_join, array_distinct
 
 from awsglue.transforms import *
 from awsglue.utils import getResolvedOptions
@@ -67,8 +67,7 @@ watch_next_dataset_path = "s3://unibg-2023-data-tedx-lm/watch_next_dataset.csv"
 watch_next_dataset = spark.read.option("header", "true").csv(watch_next_dataset_path)
 
 watch_next_dataset = watch_next_dataset.drop("url")
-watch_next_dataset = watch_next_dataset.groupBy(col("idx").alias("idx_ref")).agg(collect_list("watch_next_idx").alias("watch_next"))
-#watch_next_dataset = watch_next_dataset.withColumnRenamed("idx", "idx_ref")
+watch_next_dataset = watch_next_dataset.groupBy(col("idx").alias("idx_ref")).agg(array_distinct(collect_list("watch_next_idx")).alias("watch_next"))
 
 
 # AGGREGATE DATASETS
